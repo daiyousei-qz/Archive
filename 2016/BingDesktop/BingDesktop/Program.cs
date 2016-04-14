@@ -24,17 +24,18 @@ namespace BingDesktop
             SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
         }
 
-        static readonly string pathBase = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-        static readonly string date = DateTime.Now.ToString("yyyy-MM-dd");
-        static readonly string time = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss");
-        static readonly string pathImg = string.Format("{0}\\Bing\\{1}.jpg", pathBase, date);
-        static readonly string pathLog = string.Format("{0}\\Bing\\log.txt", pathBase);
-        static readonly string pathErroredPage = string.Format("{0}\\Bing\\error-{1}.html", pathBase, date);
+        static readonly string pathBase        = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+        static readonly string date            = DateTime.Now.ToString("yyyy-MM-dd");
+        static readonly string time            = DateTime.Now.ToString("yyyy-MM-dd-hh-mm-ss");
+        static readonly string pathImg         = $"{pathBase}\\Bing\\{date}.jpg";
+        static readonly string pathLog         = $"{pathBase}\\Bing\\log.txt";
+        static readonly string pathErroredPage = $"{pathBase}\\Bing\\error-{date}.html";
 
         static readonly string pattern = "(?<=;g_img={url:')(http:\\/\\/\\w+(\\.\\w+)*)?(\\/[\\w0-9_\\-]+)*\\.jpg(?=',id)";
 
         static void DownloadWallpaper(StreamWriter log)
         {
+
             using (HttpClient client = new HttpClient())
             {
                 log.WriteLine("Connecting to cn.bing.com");
@@ -44,7 +45,8 @@ namespace BingDesktop
                 var match = Regex.Match(taskPage.Result, pattern);
                 if (match.Success)
                 {
-                    // note different network environment will acquire different kinds of address
+                    // note different network environment will yield different kinds of address
+                    // this depends on http:\\cn.bing.com
                     var addr = (match.Value.StartsWith("http:") ? "" : "http://cn.bing.com") + match.Value;
                     log.WriteLine("Find today's wall paper at \"{0}\"", addr);
 
@@ -69,31 +71,31 @@ namespace BingDesktop
         [STAThread]
         static void Main()
         {
+            // if todays wallpaper already in archive, do nothing
+            if (File.Exists(pathImg)) return;
+
             StreamWriter log = File.AppendText(pathLog);
             log.WriteLine("[{0}]", DateTime.Now);
 
             try
             {
-                if (!File.Exists(pathImg))
-                {
-                    // ping first to check availability of Bing 
-                    Ping ping = new Ping();
-                    PingReply reply = ping.Send("cn.bing.com");
+                // ping first to check availability of Bing 
+                Ping ping = new Ping();
+                PingReply reply = ping.Send("cn.bing.com");
 
-                    DownloadWallpaper(log);
-                }
-                else
-                {
-                    log.WriteLine("Today's wallpaper already set.");
-                }
+                DownloadWallpaper(log);
             }
-            catch(PingException)
+            catch (PingException)
             {
                 log.WriteLine("Failed to reach cn.bing.com");
             }
-            catch(Exception ex)
+            catch (AggregateException ex)
             {
-                log.WriteLine("Unknown exception saying \"{0}\"", ex.Message);
+                log.WriteLine("Exception thrown, saying \"{0}\"", ex.InnerException.Message);
+            }
+            catch (Exception ex)
+            {
+                log.WriteLine("Exception thrown, saying \"{0}\"", ex.Message);
             }
 
             log.WriteLine();
