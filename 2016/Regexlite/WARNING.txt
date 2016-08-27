@@ -1,0 +1,1 @@
+This is a abandoned project that implemented a general-purpose regular expression engine. Core functionalities of the engine has been virtually done, but I'm not going to finish this project as it has taken too much of my time and energies. Anyway, it's near finished.
