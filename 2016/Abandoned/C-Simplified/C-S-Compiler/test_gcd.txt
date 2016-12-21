@@ -1,0 +1,14 @@
+int x;
+int y;
+x = 8;
+y = 42;
+while(x!=y) {
+    if(x>y) {
+        x=x-y;
+    }
+    else {
+        y=y-x;
+    }
+}
+
+print x; 

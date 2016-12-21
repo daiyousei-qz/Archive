@@ -1,0 +1,25 @@
+int n;
+n=10;
+
+int r;
+int m1;
+int m2;
+m1 = 1;
+m2 = 1;
+int tmp;
+
+if(n<3) {
+    r = 1;
+}
+else {
+    int i;
+    i = 2;
+    while(i<n) {
+        tmp = m1+m2;
+        m1 = m2;
+        m2 = tmp;
+        i = i+1;
+    }
+    
+    r = m2;
+}
