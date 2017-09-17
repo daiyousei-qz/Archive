@@ -199,7 +199,7 @@ let expressionParser =
             numberConstParser;
             varParser |>> NamedExpr;
 
-            between (pstr_ws "(") (pstr_ws ")") logicalOrExpr;
+            between (pstr_ws "(") (pstr_ws ")") castExpr;
         ]
 
     // unaryExpr
