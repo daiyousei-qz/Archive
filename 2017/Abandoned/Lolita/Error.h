@@ -35,5 +35,4 @@ namespace lolita
 		LiteralError(const char* msg = "")
 			: CompilationError(msg) { }
 	};
-
 }
